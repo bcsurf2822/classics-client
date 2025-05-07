@@ -22,9 +22,19 @@ type BackendSearchResponse = {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { query, indexName, limit = 5 } = body;
+    const {
+      query,
+      indexName,
+      limit = 5,
+      personality = "classic_literature",
+    } = body;
 
-    console.log("Request to chat API:", { query, indexName, limit });
+    console.log("Request to chat API:", {
+      query,
+      indexName,
+      limit,
+      personality,
+    });
 
     if (!query) {
       return NextResponse.json({ error: "Query is required" }, { status: 400 });
@@ -34,6 +44,7 @@ export async function POST(request: Request) {
     searchParams.append("query", query);
     if (indexName) searchParams.append("index_name", indexName);
     searchParams.append("limit", limit.toString());
+    searchParams.append("personality", personality);
 
     const endpoint = `http://0.0.0.0:8000/search-books?${searchParams.toString()}`;
     console.log("Making request to backend:", endpoint);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { RiRobot2Fill } from "react-icons/ri";
 
 type SearchResult = {
   text: string;
@@ -168,7 +169,8 @@ export default function ChatBot() {
                 </div>
               </div>
               {/* Bot message */}
-              <div className="flex justify-start">
+              <div className="flex justify-start items-start">
+                <RiRobot2Fill className="text-green-500 mr-2 mt-1" size={24} />
                 <div className="bg-green-100 text-green-900 px-4 py-2 rounded-lg max-w-xl text-left shadow-md">
                   {entry.bot}
                 </div>

@@ -164,6 +164,22 @@ const UploadBook: React.FC = () => {
           {status.message}
         </div>
       )}
+
+      {/* Help area for users without a document */}
+      <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded text-center">
+        <p className="text-yellow-800 text-base">
+          Don&apos;t have a text file to upload? Visit{" "}
+          <a
+            href="https://www.gutenberg.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-700 underline hover:text-blue-900"
+          >
+            Project Gutenberg
+          </a>
+          .
+        </p>
+      </div>
     </div>
   );
 };

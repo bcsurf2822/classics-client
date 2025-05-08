@@ -102,3 +102,47 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const personality = searchParams.get("personality") || "classic_literature";
+
+    const backendUrl = `http://0.0.0.0:8000/greeting?personality=${encodeURIComponent(
+      personality
+    )}`;
+    console.log("Making request to backend /greeting:", backendUrl);
+
+    const response = await fetch(backendUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        "Backend API error (greeting):",
+        response.status,
+        errorText
+      );
+      throw new Error(
+        `Error getting greeting: ${response.status} - ${errorText}`
+      );
+    }
+
+    const data = await response.json();
+    console.log("Backend /greeting response:", JSON.stringify(data, null, 2));
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Error in chat API GET route (greeting):", error);
+    return NextResponse.json(
+      {
+        error: "Failed to get greeting",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 }
+    );
+  }
+}

@@ -48,13 +48,20 @@ export default function SearchIndex() {
       )}
 
       {indexes.length > 0 && (
-        <ul className="list-disc pl-5">
-          {indexes.map((index, i) => (
-            <li key={i} className="mb-2">
-              {index}
-            </li>
-          ))}
-        </ul>
+        <div className="flex justify-center">
+          <div className="w-full max-w-md bg-gray-100 rounded shadow-md border-t-2 border-b-2 border-gray-300">
+            {indexes.map((index, i) => (
+              <div
+                key={i}
+                className={`px-6 py-2 text-left text-sm font-normal ${
+                  i !== indexes.length - 1 ? "border-b border-gray-200" : ""
+                }`}
+              >
+                {index}
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

@@ -21,10 +21,7 @@ type ChatResponse = {
 
 export default function ChatBot() {
   const [query, setQuery] = useState("");
-  const [selectedIndex, setSelectedIndex] = useState<string>("");
-  const [indexes, setIndexes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [greeting, setGreeting] = useState<string>("");
   const [response, setResponse] = useState<ChatResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [personality, setPersonality] = useState<string>("classic_literature");
@@ -33,46 +30,33 @@ export default function ChatBot() {
   >([]);
 
   useEffect(() => {
-    const fetchIndexes = async () => {
-      try {
-        const response = await fetch("/api/index");
-        if (response.ok) {
-          const data = await response.json();
-          setIndexes(data.indexes || []);
-        }
-      } catch (error) {
-        console.error("Failed to fetch book indexes:", error);
-      }
-    };
-
-    fetchIndexes();
-  }, []);
-
-  useEffect(() => {
     const fetchGreeting = async () => {
       try {
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            query: "",
-            personality,
-          }),
-        });
+        const response = await fetch(
+          `/api/chat?personality=${encodeURIComponent(personality)}`
+        );
         if (response.ok) {
           const data = await response.json();
-          setGreeting(
+          const greetingMsg =
             data.response ||
-              "Welcome to the Book Search! How can I help you today?"
-          );
+            "Welcome to the Book Search! How can I help you today?";
+          setConversation([{ user: "", bot: greetingMsg }]);
         } else {
-          setGreeting("Welcome to the Book Search! How can I help you today?");
+          setConversation([
+            {
+              user: "",
+              bot: "Welcome to the Book Search! How can I help you today?",
+            },
+          ]);
         }
       } catch (error) {
         console.error("Error fetching greeting:", error);
-        setGreeting("Welcome to the Book Search! How can I help you today?");
+        setConversation([
+          {
+            user: "",
+            bot: "Welcome to the Book Search! How can I help you today?",
+          },
+        ]);
       }
     };
     fetchGreeting();
@@ -97,7 +81,6 @@ export default function ChatBot() {
         },
         body: JSON.stringify({
           query: userMessage,
-          indexName: selectedIndex || null,
           limit: 5,
           personality,
         }),
@@ -126,7 +109,7 @@ export default function ChatBot() {
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6">Book Search</h2>
+      <h2 className="text-2xl font-bold mb-6">Book Chat</h2>
 
       {/* Personality Selector */}
       <div className="mb-4">
@@ -150,24 +133,19 @@ export default function ChatBot() {
         </select>
       </div>
 
-      {/* Greeting */}
-      {greeting && (
-        <div className="bg-blue-50 border border-blue-200 text-blue-900 px-4 py-3 rounded mb-4">
-          {greeting}
-        </div>
-      )}
-
       {/* Conversation History */}
       <div className="mb-6">
         <div className="chatbox-container bg-white border border-gray-300 rounded-lg p-4 max-h-[400px] overflow-y-auto space-y-4 shadow-inner">
           {conversation.map((entry, idx) => (
             <div key={idx} className="space-y-2">
               {/* User message */}
-              <div className="flex justify-end">
-                <div className="bg-blue-500 text-white px-4 py-2 rounded-lg max-w-xl text-right shadow-md">
-                  {entry.user}
+              {entry.user && (
+                <div className="flex justify-end">
+                  <div className="bg-blue-500 text-white px-4 py-2 rounded-lg max-w-xl text-right shadow-md">
+                    {entry.user}
+                  </div>
                 </div>
-              </div>
+              )}
               {/* Bot message */}
               <div className="flex justify-start items-start">
                 <RiRobot2Fill className="text-green-500 mr-2 mt-1" size={24} />
@@ -179,8 +157,6 @@ export default function ChatBot() {
           ))}
         </div>
       </div>
-
-      {/* Only show indexes_searched info below conversation, not the response */}
       {response && response.indexes_searched && (
         <div className="text-sm text-gray-500 mb-6">
           Searched in: {response.indexes_searched.join(", ")}
@@ -206,31 +182,6 @@ export default function ChatBot() {
               {loading ? "Searching..." : "Search"}
             </button>
           </div>
-
-          {indexes.length > 0 && (
-            <div>
-              <label
-                htmlFor="bookIndex"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Select specific book (optional)
-              </label>
-              <select
-                id="bookIndex"
-                value={selectedIndex}
-                onChange={(e) => setSelectedIndex(e.target.value)}
-                className="block w-full p-2 border border-gray-300 rounded"
-                disabled={loading}
-              >
-                <option value="">All books</option>
-                {indexes.map((index, i) => (
-                  <option key={i} value={index}>
-                    {index}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
         </div>
       </form>
 
